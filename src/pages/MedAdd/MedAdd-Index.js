@@ -235,6 +235,7 @@ export default function MedAdd() {
         </Animatable.View>
       </ScrollView>
     </KeyboardAvoidingView>
+    useFetchData()
   );
 }
 

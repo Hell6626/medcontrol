@@ -4,7 +4,7 @@ import * as Animatable from 'react-native-animatable';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Entypo';
 import Icon2 from 'react-native-vector-icons/FontAwesome6';
-import useFetchData from ''; // Importa o hook customizado
+import useFetchData from '../Hook/useFetchData.js'; // Importa o hook customizado
 
 export default function Home() {
     const navigation = useNavigation();
@@ -28,6 +28,11 @@ export default function Home() {
 
     // Passa a função fetchMedicamentos para o hook
     useFetchData(fetchMedicamentos);
+
+    // Use useEffect para chamar fetchMedicamentos ao entrar na página
+    useEffect(() => {
+        fetchMedicamentos();
+    }, [infoUserId]); // Adicione infoUserId como dependência para atualizar quando mudar
 
     const toggleSidebar = () => {
         const toValue = isSidebarVisible ? -200 : 0;
@@ -152,7 +157,6 @@ const Med = ({ med, userId, infoUserId }) => {
         </View>
     );
 };
-
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
