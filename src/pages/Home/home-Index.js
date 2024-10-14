@@ -4,6 +4,7 @@ import * as Animatable from 'react-native-animatable';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Entypo';
 import Icon2 from 'react-native-vector-icons/FontAwesome6';
+import useFetchData from ''; // Importa o hook customizado
 
 export default function Home() {
     const navigation = useNavigation();
@@ -14,10 +15,7 @@ export default function Home() {
     const [medicamentos, setMedicamentos] = useState([]); 
     const [searchQuery, setSearchQuery] = useState('');
 
-    useEffect(() => {
-        fetchMedicamentos();
-    }, []);
-
+    // Usa o hook customizado para buscar medicamentos
     const fetchMedicamentos = async () => {
         try {
             const response = await fetch(`http://192.168.0.188:3001/medicamento/${infoUserId}`);
@@ -27,6 +25,9 @@ export default function Home() {
             console.error("Erro ao buscar medicamentos:", error);
         }
     };
+
+    // Passa a função fetchMedicamentos para o hook
+    useFetchData(fetchMedicamentos);
 
     const toggleSidebar = () => {
         const toValue = isSidebarVisible ? -200 : 0;
@@ -75,7 +76,7 @@ export default function Home() {
 
             <TouchableOpacity style={styles.addButton} onPress={() => {
                 console.log(infoUserId); // Verifica se o valor está correto
-                navigation.navigate('MedAdd', { userId: userId,infoUserId: infoUserId }); 
+                navigation.navigate('MedAdd', { userId: userId, infoUserId: infoUserId }); 
             }}>
                 <Icon2 name="notes-medical" size={30} color='#fff' style={styles.addButton} />
             </TouchableOpacity>
