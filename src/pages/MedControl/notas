@@ -1,0 +1,17 @@
+//como fazer uma imagem
+//<Animatable.Image
+//                    animation="flipInY"
+//                    source={require('../../assets/mario.png')}
+//                    style={{ width: '100%' }}
+//                    resizeMode="contain"
+//                />
+
+
+//botao acessar
+
+//<TouchableOpacity 
+//style={styles.button}
+//onPress={()=>navigation.navigate('SingIn')}
+//>
+//<Text style={styles.buttonText}>Acessar</Text>
+//</TouchableOpacity>
