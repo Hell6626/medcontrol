@@ -6,10 +6,10 @@ import { Formik, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Axios from 'axios'; // Certifique-se de instalar axios com npm install axios
+import { baseURL } from '../Hook/config.js';
 
 export default function Cadastro() {
     const navigation = useNavigation();
-    const baseURL = Platform.OS === 'android' ? 'http://192.168.0.188:3001' : 'http://localhost:3001';
 
     // Estado para alternar a visibilidade da senha
     const [showPassword, setShowPassword] = useState(false);
@@ -24,8 +24,6 @@ export default function Cadastro() {
         password: yup
             .string()
             .min(8, "A senha deve ter no mínimo 8 caracteres")
-            .matches(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula")
-            .matches(/[!@#$%^&*(),.?":{}|<>]/, "A senha deve conter pelo menos um caractere especial")
             .required("A senha é obrigatória"),
         confirmPassword: yup
             .string()

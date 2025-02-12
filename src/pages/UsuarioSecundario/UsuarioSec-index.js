@@ -7,12 +7,12 @@ import { Picker } from '@react-native-picker/picker';
 import * as Animatable from "react-native-animatable";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
+import { baseURL } from '../Hook/config.js';
 
 export default function UsuarioSecundario() {
     const navigation = useNavigation();
     const route = useRoute();
     const { userId } = route.params;
-    const baseURL = Platform.OS === 'android' ? 'http://192.168.0.188:3001' : 'http://localhost:3001';
 
 
     const [nome, setNome] = useState('');
@@ -65,7 +65,7 @@ export default function UsuarioSecundario() {
             console.log('Resposta do servidor:', response.data);
             Alert.alert("Sucesso", "Usuário secundário cadastrado com sucesso!");
             console.log('Tentando navegar para Perfil com userId:', userId);
-            navigation.navigate('Perfil', { userId });
+            navigation.replace('Perfil', { userId });
             console.log('Navegação para Perfil concluída');
         } catch (error) {
             console.error('Erro ao cadastrar usuário secundário:', error.response?.data || error.message);
@@ -113,7 +113,6 @@ export default function UsuarioSecundario() {
                         <Text style={styles.buttontext}>Anterior</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, { marginTop: 20 }]}
                         onPress={async () => {
                             if (nome && dataNascimento.length === 10) {
                                 console.log('Dados válidos, tentando fazer o submit.');
@@ -123,9 +122,9 @@ export default function UsuarioSecundario() {
                             }
                         }}
                     >
-                    <Text style={styles.buttontext}>
-                        Cadastrar
-                    </Text>
+                        <Text style={styles.buttontext}>
+                            Cadastrar
+                        </Text>
                     </TouchableOpacity>
 
                 </View>

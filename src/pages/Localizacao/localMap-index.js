@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as Animatable from "react-native-animatable";
 import Icon from 'react-native-vector-icons/EvilIcons';
 import MapView, { Marker, UrlTile } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function Localizacao() {
     const navigation = useNavigation();
@@ -13,6 +13,8 @@ export default function Localizacao() {
     const [pharmacies, setPharmacies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState(null);
+    const route = useRoute();
+    const { userId, infoUserId } = route.params;
 
     // Função para obter a localização
     useEffect(() => {
@@ -66,7 +68,7 @@ export default function Localizacao() {
         <View style={styles.container}>
             <Animatable.View animation="fadeInUpBig" style={styles.containerForm}>
                 <View>
-                    <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Home', { userId: userId, infoUserId: infoUserId })}>
                         <Icon name="close" size={40} style={styles.icon} />
                     </TouchableOpacity>
                     <Text style={styles.message}>Localização</Text>
@@ -165,8 +167,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 25,
     },
     text: {
-        fontSize:20,
-        textAlign:'center',
-        margin:15,
+        fontSize: 20,
+        textAlign: 'center',
+        margin: 15,
     }
 });

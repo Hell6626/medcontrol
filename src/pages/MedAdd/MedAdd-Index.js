@@ -7,6 +7,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Formik, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import * as Notifications from 'expo-notifications';
+import { baseURL } from '../Hook/config.js';
 
 // Configuração das permissões de notificação
 Notifications.setNotificationHandler({
@@ -34,8 +35,7 @@ export default function MedAdd() {
   const [modalVisible, setModalVisible] = useState(false);
   const route = useRoute();
   const { userId, infoUserId } = route.params; // Pega o userId da navegação
-  const baseURL = Platform.OS === 'android' ? 'http://192.168.0.188:3001' : 'http://localhost:3001';
-  
+
   // Verifique se o userId está disponível
   console.log("User ID:", userId);
 
@@ -77,7 +77,7 @@ export default function MedAdd() {
       <ScrollView contentContainerStyle={styles.scrollView}>
         <Animatable.View animation="fadeInUpBig" style={styles.containerForm}>
           <View>
-            <TouchableOpacity onPress={() => navigation.navigate('Home', { userId: userId,infoUserId: infoUserId })}>
+            <TouchableOpacity onPress={() => navigation.replace('Home', { userId: userId, infoUserId: infoUserId })}>
               <Icon name="close" size={40} style={styles.icon} />
             </TouchableOpacity>
             <Text style={styles.message}>Medicamento</Text>
@@ -100,7 +100,7 @@ export default function MedAdd() {
             validationSchema={validationSchema}
             onSubmit={async (values, { resetForm }) => { // Inclua resetForm aqui
               console.log("Valores enviados:", values);
-              
+
               try {
                 const response = await fetch(`${baseURL}/medicamento`, {
                   method: 'POST',
@@ -114,15 +114,15 @@ export default function MedAdd() {
                     diasUso: parseInt(values.diasUso, 10),
                     quantidadePorCaixa: parseInt(values.quantidadePorCaixa, 10),
                     quantidadeCaixas: parseInt(values.quantidadeCaixas, 10),
-                    userId: infoUserId , // Certifique-se de que userId não é undefined
+                    userId: infoUserId, // Certifique-se de que userId não é undefined
                     time: time.toLocaleTimeString(),
                   }),
                 });
-                
+
                 if (response.ok) {
                   const data = await response.json();
                   console.log("Dados enviados com sucesso:", data);
-                  
+
                   // Limpe os campos do formulário
                   resetForm(); // Chame resetForm aqui
                 } else {
@@ -235,7 +235,6 @@ export default function MedAdd() {
         </Animatable.View>
       </ScrollView>
     </KeyboardAvoidingView>
-    useFetchData()
   );
 }
 

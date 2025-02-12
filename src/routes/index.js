@@ -6,7 +6,7 @@ import UsuarioSecundario from '../pages/UsuarioSecundario/UsuarioSec-index.js'
 import Perfil from '../pages/Perfil/perfil-index.js'
 import Home from '../pages/Home/home-Index.js'
 import MedAdd from '../pages/MedAdd/MedAdd-Index.js'
-import Localizacao from '../pages/Localização/localMap-index.js'
+import Localizacao from '../pages/Localizacao/localMap-index.js'
 import EditProfile from '../pages/EditProfile/EditProfile-index.js'
 
 const Stack = createNativeStackNavigator();

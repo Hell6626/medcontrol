@@ -5,17 +5,15 @@ import * as yup from "yup";
 import * as Animatable from "react-native-animatable";
 import { useNavigation } from '@react-navigation/native';
 import Axios from 'axios';
+import { baseURL } from '../Hook/config.js';
 
 export default function Entrar() {
     const navigation = useNavigation();
-    const baseURL = Platform.OS === 'android' ? 'http://192.168.0.188:3001' : 'http://localhost:3001';
 
     const validationSchema = yup.object().shape({
         email: yup.string().email("Digite um e-mail válido").required("O e-mail é obrigatório"),
         password: yup.string()
             .min(8, "A senha deve ter no mínimo 8 caracteres") // Corrigido para 8 caracteres
-            .matches(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula")
-            .matches(/[!@#$%^&*(),.?":{}|<>]/, "A senha deve conter pelo menos um caractere especial")
             .required("A senha é obrigatória"),
     });
 
@@ -25,16 +23,16 @@ export default function Entrar() {
             password: values.password,
         }).then(response => {
             console.log('Resposta do servidor:', response.data); // Log da resposta
-            alert(response.data.message); 
+            alert(response.data.message);
             if (response.data.message === "Usuário logado com sucesso") {
                 const userId = response.data.userId;
-                navigation.navigate('Perfil', { userId: userId }); 
+                navigation.navigate('Perfil', { userId: userId });
             }
         }).catch(error => {
             console.error(error.response ? error.response.data : error.message);
             alert("Erro ao fazer login. Por favor, tente novamente.");
         });
-        
+
     };
 
     return (

@@ -5,20 +5,21 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Entypo';
 import Icon2 from 'react-native-vector-icons/FontAwesome6';
 import useFetchData from '../Hook/useFetchData.js'; // Importa o hook customizado
+import { baseURL } from '../Hook/config.js';
 
 export default function Home() {
     const navigation = useNavigation();
     const [isSidebarVisible, setIsSidebarVisible] = useState(false);
     const animatedValue = useRef(new Animated.Value(-200)).current;
     const route = useRoute();
-    const { userId, infoUserId } = route.params; 
-    const [medicamentos, setMedicamentos] = useState([]); 
+    const { userId, infoUserId } = route.params;
+    const [medicamentos, setMedicamentos] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
     // Usa o hook customizado para buscar medicamentos
     const fetchMedicamentos = async () => {
         try {
-            const response = await fetch(`http://192.168.0.188:3001/medicamento/${infoUserId}`);
+            const response = await fetch(`${baseURL}/medicamento/${infoUserId}`);
             const data = await response.json();
             setMedicamentos(data);
         } catch (error) {
@@ -32,7 +33,7 @@ export default function Home() {
     // Use useEffect para chamar fetchMedicamentos ao entrar na página
     useEffect(() => {
         fetchMedicamentos();
-    }, [infoUserId]); // Adicione infoUserId como dependência para atualizar quando mudar
+    }, [infoUserId]);
 
     const toggleSidebar = () => {
         const toValue = isSidebarVisible ? -200 : 0;
@@ -56,19 +57,19 @@ export default function Home() {
                     <Text style={styles.titulo}>MedControl.</Text>
                 </TouchableOpacity>
                 <View style={styles.linha}></View>
-                <TouchableOpacity style={styles.user} onPress={() => navigation.navigate('Perfil', { userId: userId })}>
+                <TouchableOpacity style={styles.user} onPress={() => navigation.replace('Perfil', { userId: userId })}>
                     <View style={styles.image}></View>
                     <Text style={styles.sidebarButtonText}>Perfis</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.sidebarButton} onPress={() => navigation.navigate('EditProfile')}>
+                <TouchableOpacity style={styles.sidebarButton} onPress={() => navigation.navigate('EditProfile', { userId: userId, infoUserId: infoUserId })}>
                     <Icon name="cog" size={30} color='#fff' />
                     <Text style={styles.sidebarButtonText}>Configurações</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.sidebarButton} onPress={() => navigation.navigate('Localização')}>
+                <TouchableOpacity style={styles.sidebarButton} onPress={() => navigation.navigate('Localização', { userId: userId, infoUserId: infoUserId })}>
                     <Icon name="location-pin" size={30} color='#fff' />
                     <Text style={styles.sidebarButtonText}>Localização</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.sidebarButtonExit} onPress={() => navigation.navigate('MedControl')}>
+                <TouchableOpacity style={styles.sidebarButtonExit} onPress={() => navigation.replace('MedControl')}>
                     <Icon name="log-out" size={30} color='#fff' />
                     <Text style={styles.sidebarButtonText}>Sair</Text>
                 </TouchableOpacity>
@@ -81,7 +82,7 @@ export default function Home() {
 
             <TouchableOpacity style={styles.addButton} onPress={() => {
                 console.log(infoUserId); // Verifica se o valor está correto
-                navigation.navigate('MedAdd', { userId: userId, infoUserId: infoUserId }); 
+                navigation.navigate('MedAdd', { userId: userId, infoUserId: infoUserId });
             }}>
                 <Icon2 name="notes-medical" size={30} color='#fff' style={styles.addButton} />
             </TouchableOpacity>
@@ -126,26 +127,40 @@ const MedList = ({ medicamentos, userId, infoUserId }) => {
 };
 
 const Med = ({ med, userId, infoUserId }) => {
-    const navigation = useNavigation();
     const [proximoHorario, setProximoHorario] = useState('');
 
     useEffect(() => {
         const calcularProximoHorario = () => {
-            const horarioAtual = new Date();
-            const intervaloHoras = med.intervalo;
-            const proximoHorario = new Date(horarioAtual.getTime() + intervaloHoras * 60 * 60 * 1000);
-            return proximoHorario;
+            // Assume que horario_insercao é uma string no formato "HH:MM:SS"
+            const [horas, minutos] = med.horario_insercao.split(':').map(Number); // Divide em horas e minutos
+            const horarioInsercao = new Date(); // Pega a data atual
+            horarioInsercao.setHours(horas, minutos, 0, 0); // Define a hora de inserção
+
+            const intervaloHoras = parseInt(med.intervalo, 10); // Converte o intervalo para inteiro
+            const proximo = new Date(horarioInsercao.getTime() + (intervaloHoras * 60 * 60 * 1000)); // Calcula o próximo horário
+
+            const horarioAtual = new Date(); // Pega o horário atual
+
+            // Verifica se o próximo horário é no futuro
+            if (proximo > horarioAtual) {
+                // Formata o horário para AM/PM
+                let hours = proximo.getHours();
+                const minutes = proximo.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM'; // Determina AM ou PM
+                hours = hours % 12; // Converte para o formato 12h
+                hours = hours ? hours : 12; // O zero deve ser mostrado como 12
+                const proximo12h = `${hours}:${minutes < 10 ? '0' + minutes : minutes} ${ampm}`; // Formata a string
+
+                setProximoHorario(`${proximo12h}`); // Armazena no formato desejado
+            } else {
+                setProximoHorario('Nenhum horário futuro'); // Se não houver horário futuro
+            }
         };
 
-        const atualizarHorario = () => {
-            const proximo = calcularProximoHorario();
-            setProximoHorario(proximo.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-        };
-
-        atualizarHorario();
-        const intervalId = setInterval(atualizarHorario, 60000);
+        calcularProximoHorario();
+        const intervalId = setInterval(calcularProximoHorario, 60000); // Atualiza a cada 60 segundos
         return () => clearInterval(intervalId);
-    }, [med.intervalo]);
+    }, [med.intervalo, med.horario_insercao]);
 
     return (
         <View style={styles.med}>
@@ -157,6 +172,10 @@ const Med = ({ med, userId, infoUserId }) => {
         </View>
     );
 };
+
+
+
+
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -241,7 +260,7 @@ const styles = StyleSheet.create({
     time: {
         fontWeight: "bold",
         marginLeft: "auto",
-        fontSize: 45,
+        fontSize: 30,
     },
     menuButton: {
         position: 'absolute',
@@ -252,7 +271,7 @@ const styles = StyleSheet.create({
         zIndex: 10,
         padding: 10,
     },
-    
+
     addButton: {
         position: 'absolute',
         top: 20,

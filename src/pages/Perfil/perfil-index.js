@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
 import Axios from 'axios';
+import { baseURL } from '../Hook/config.js';
 
 export default function Perfil() {
   const navigation = useNavigation();
@@ -12,7 +13,6 @@ export default function Perfil() {
   const { userId } = route.params;
 
   const [usuarios, setUsuarios] = useState([]);
-  const baseURL = Platform.OS === 'android' ? 'http://192.168.0.188:3001' : 'http://localhost:3001';
 
   useEffect(() => {
     console.log('User ID na tela Perfil:', userId); // Logando userId
@@ -22,10 +22,11 @@ export default function Perfil() {
   const fetchUsuarios = async () => {
     try {
       const response = await Axios.get(`${baseURL}/usuarios/${userId}`);
-      console.log('Resposta da API:', response.data); // Logando a resposta da API
+
       if (response.data && Array.isArray(response.data)) {
         setUsuarios(response.data);
       } else {
+        console.warn('Dados retornados não são um array ou estão vazios'); // Aviso no console
         setUsuarios([]);  // Garante que seja um array
       }
     } catch (error) {
@@ -33,20 +34,30 @@ export default function Perfil() {
       setUsuarios([]);  // Em caso de erro, garante que usuarios seja um array vazio
     }
   };
-  
-  // Função para ordenar usuários por nome
+
+  // Função para ordenar usuários por ID e depois por nome
   const ordenarUsuariosPorNome = (usuarios) => {
-    return usuarios.sort((a, b) => {
-      const nomeA = a.NOME.toUpperCase(); // Ignora maiúsculas
-      const nomeB = b.NOME.toUpperCase(); // Ignora maiúsculas
+    // Verifica se a lista de usuários está vazia
+    if (usuarios.length === 0) return [];
+
+    // Ordena a lista por ID
+    const [primeiroUsuario, ...restanteUsuarios] = usuarios.sort((a, b) => a.ID - b.ID);
+
+    // Ordena o restante dos usuários por nome
+    const restanteOrdenado = restanteUsuarios.sort((a, b) => {
+      const nomeA = a.NOME?.toUpperCase() || ""; // Ignora maiúsculas
+      const nomeB = b.NOME?.toUpperCase() || ""; // Ignora maiúsculas
       if (nomeA < nomeB) {
-        return -1; // A vem antes
+        return -1;
       }
       if (nomeA > nomeB) {
-        return 1; // B vem antes
+        return 1;
       }
-      return 0; // São iguais
+      return 0;
     });
+
+    // Retorna o primeiro usuário seguido dos restantes ordenados
+    return [primeiroUsuario, ...restanteOrdenado];
   };
 
   // Ordena os usuários
@@ -72,8 +83,8 @@ export default function Perfil() {
               <>
                 <Text style={styles.title}>Usuários</Text>
                 <ScrollView>
-                  {usuariosOrdenados.slice(1).map((usuario, index) => (
-                    <UserProfile key={usuario.ID || index} usuario={usuario} userId={userId} />
+                  {usuariosOrdenados.slice(1).map((usuario) => (
+                    <UserProfile key={usuario.ID} usuario={usuario} userId={userId} />
                   ))}
                 </ScrollView>
               </>
@@ -81,7 +92,7 @@ export default function Perfil() {
           </>
         )}
 
-        <TouchableOpacity style={styles.buttonadd} onPress={() => navigation.navigate('UsuarioSecundario',{userId: userId})}>
+        <TouchableOpacity style={styles.buttonadd} onPress={() => navigation.navigate('UsuarioSecundario', { userId: userId })}>
           <Image source={addPng} style={styles.addimg} />
           <Text>Adicionar Novo Usuário</Text>
         </TouchableOpacity>
@@ -105,8 +116,8 @@ const UserProfile = ({ usuario, userId }) => {
   };
 
   return (
-    <TouchableOpacity 
-      style={styles.user} 
+    <TouchableOpacity
+      style={styles.user}
       onPress={() => {
         console.log('infoUserId (ID do usuário):', usuario.ID); // Verifica se o valor está correto
         navigation.navigate('Home', { userId: userId, infoUserId: usuario.ID }); // Passando o ID correto para Home

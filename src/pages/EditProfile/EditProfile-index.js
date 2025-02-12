@@ -4,9 +4,9 @@ import { View, Image, StyleSheet, Alert, TouchableOpacity, Text, TextInput, Scro
 import * as Animatable from "react-native-animatable";
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/Feather';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function EditProfile({ navigation }) {
+export default function EditProfile() {
   const navigation2 = useNavigation();
   const [profileImage, setProfileImage] = useState(null);
   const [name, setName] = useState('');
@@ -16,6 +16,8 @@ export default function EditProfile({ navigation }) {
   const [location, setLocation] = useState('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
+  const route = useRoute();
+  const { userId, infoUserId } = route.params;
 
   // Função para solicitar permissão de acesso à galeria
   const pickImage = async () => {
@@ -67,7 +69,7 @@ export default function EditProfile({ navigation }) {
           <Animatable.View animation="fadeInUpBig" style={styles.containerForm}>
             <View>
               <TouchableOpacity
-                onPress={() => navigation2.navigate('Home')}>
+                onPress={() => navigation2.navigate('Home', { userId: userId, infoUserId: infoUserId })}>
                 <Icon name="chevron-left" size={35} color="black" style={styles.icon3} />
               </TouchableOpacity>
               <Text style={styles.message} >Perfil</Text>
