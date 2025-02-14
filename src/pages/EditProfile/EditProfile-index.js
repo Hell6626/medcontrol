@@ -7,7 +7,6 @@ import Icon from 'react-native-vector-icons/Feather';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function EditProfile() {
-  const batata = 1;
   const navigation2 = useNavigation();
   const [profileImage, setProfileImage] = useState(null);
   const [name, setName] = useState('');
